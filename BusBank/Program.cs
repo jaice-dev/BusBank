@@ -26,14 +26,16 @@ namespace BusBank
 
     class Response
     {
-        public string platformName;
-        public string vehicleId;
-        public string stationName;
-        public string direction;
-        public string towards;
-        public string destinationName;
-        public int timeToStation;
-        public DateTime expectedArrival;
+        public string platformName { get; set; }
+        public string vehicleId { get; set; }
+        public string stationName { get; set; }
+        public string direction { get; set; }
+        public string towards { get; set; }
+        public string destinationName { get; set; }
+        public int timeToStation { get; set; }
+        public DateTime expectedArrival { get; set; }
+        
+        
 
     }
 }
