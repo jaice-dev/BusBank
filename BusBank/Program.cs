@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using RestSharp;
 
 namespace BusBank
@@ -10,21 +11,33 @@ namespace BusBank
         {
             // https://api.digital.tfl.gov.uk/StopPoint/{id}/ArrivalDepartures
             var softwireBusStop = "490008660N";
+            var postcode = "nw51tl";
             
-            var client = new RestClient("https://api.tfl.gov.uk/StopPoint");
-            var request = new RestRequest($"/{softwireBusStop}/Arrivals");
+            var tflclient = new RestClient("https://api.tfl.gov.uk/StopPoint");
+            var busStopRequest = new RestRequest($"/{softwireBusStop}/Arrivals");
 
-            var responses = client.Get<List<Response>>(request);
-            foreach (var response in responses.Data)
+            var nearestBusStopRequest = new RestRequest().AddQueryParameter(stopTypes, "NaptanBusWayPoint");
+
+            var postcodeclient = new RestClient("http://api.postcodes.io/postcodes");
+            var postcoderequest = new RestRequest($"/{postcode}");
+            
+            
+
+            var postcodeResponse = postcodeclient.Get<PostcodeResponse>(postcoderequest);
+            
+            var tflResponses = tflclient.Get<List<TFLResponse>>(busStopRequest);
+            foreach (var response in tflResponses.Data.OrderBy(item => item.timeToStation).Take(5))
             {
                 Console.WriteLine(response.expectedArrival);
             }
+            
+            Console.WriteLine($"Longitude: {postcodeResponse.Data.result.longitude}, Latitude: {postcodeResponse.Data.result.latitude}");
 
             
         }
     }
 
-    class Response
+    class TFLResponse
     {
         public string platformName { get; set; }
         public string vehicleId { get; set; }
@@ -35,7 +48,16 @@ namespace BusBank
         public int timeToStation { get; set; }
         public DateTime expectedArrival { get; set; }
         
-        
+    }
 
+    class PostcodeResponse
+    {
+        public Result result { get; set; }
+    }
+
+    class Result
+    {
+        public float longitude { get; set; }
+        public float latitude { get; set; }
     }
 }
