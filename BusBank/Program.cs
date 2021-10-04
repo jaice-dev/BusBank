@@ -12,12 +12,12 @@ namespace BusBank
             var softwireBusStop = "490008660N";
             
             var client = new RestClient("https://api.tfl.gov.uk/StopPoint");
-            var request = new RestRequest($"/{softwireBusStop}/ArrivalDepartures");
+            var request = new RestRequest($"/{softwireBusStop}/Arrivals");
 
             var responses = client.Get<List<Response>>(request);
             foreach (var response in responses.Data)
             {
-                Console.WriteLine(response);
+                Console.WriteLine(response.expectedArrival);
             }
 
             
@@ -26,11 +26,14 @@ namespace BusBank
 
     class Response
     {
-        public string platformName { get; set; }
-        public string destinationName { get; set; }
-        public DateTime estimatedTimeOfArrival { get; set; }
-        public DateTime estimatedTimeOfDeparture { get; set; }
-        public string departureStatus { get; set; }
+        public string platformName;
+        public string vehicleId;
+        public string stationName;
+        public string direction;
+        public string towards;
+        public string destinationName;
+        public int timeToStation;
+        public DateTime expectedArrival;
 
     }
 }
