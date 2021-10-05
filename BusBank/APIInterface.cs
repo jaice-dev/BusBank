@@ -17,27 +17,29 @@ namespace BusBank
 
         public static float[] GetLongAndLat(string postcode)
         {
-            IRestResponse<PostcodeResponse> postcodeResponse;
+            float longitude;
+            float latitude;
             
+            var postcodeclient = new RestClient("http://api.postcodes.io/postcodes");
+            var postcoderequest = new RestRequest($"/{postcode}");
+            var postcodeResponse = postcodeclient.Get<PostcodeResponse>(postcoderequest);
+
+            if (postcodeResponse.StatusCode != HttpStatusCode.OK)
+            {
+                Logger.Fatal($"Incorrect response from server 'http://api.postcodes.io': expected '200', received {postcodeResponse.StatusCode}");
+                throw new Exception($"Received incorrect status code: {postcodeResponse.StatusCode}");
+            }
+
             try
             {
-                var postcodeclient = new RestClient("http://api.postcodes.io/postcodes");
-                var postcoderequest = new RestRequest($"/{postcode}");
-                postcodeResponse = postcodeclient.Get<PostcodeResponse>(postcoderequest);
+                longitude = postcodeResponse.Data.result.longitude;
+                latitude = postcodeResponse.Data.result.latitude;
             }
             catch (Exception e)
             {
                 Logger.Error(e, "Failed to deserialise postcode response from request.");
                 throw;
             }
-            
-            if (postcodeResponse.StatusCode != HttpStatusCode.OK)
-            {
-                Logger.Fatal($"Incorrect response from server 'http://api.postcodes.io': expected '200', received {postcodeResponse.StatusCode}");
-            }
-            
-            var longitude = postcodeResponse.Data.result.longitude;
-            var latitude = postcodeResponse.Data.result.latitude;
 
             float[] locationArray = new[] {longitude, latitude};
             return locationArray;
