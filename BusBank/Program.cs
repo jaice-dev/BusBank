@@ -22,15 +22,14 @@ namespace BusBank
             
             //TODO The TFL API also has a 'Journey Planner'. Edit your program so that (when requested) it will also display directions on how to get to your nearest bus stops.
             
-            var appRunning = true;
-            while (appRunning)
+            while (true)
             {
                 Console.WriteLine("\nWelcome to BusBank. Please enter a postcode: ");
                 string userPostcode = Console.ReadLine().Replace(" ", "").ToLower();
                 
                 if (userPostcode == "quit")
                 {
-                    appRunning = false;
+                    break;
                 }
 
                 float[] longAndLat;
@@ -86,7 +85,7 @@ namespace BusBank
                 {
                     Console.WriteLine($"\nPlan your journey to a bus stop? (Press enter to quit). Please enter a number between 1 and {busStopCounter}: ");
                     var userInput = Console.ReadLine();
-                    if (userInput == null)
+                    if (string.IsNullOrEmpty(userInput))
                     {
                         break;
                     }
@@ -103,7 +102,7 @@ namespace BusBank
                         continue;
                     }
 
-                    if (1 < userValue || userValue > busStopCounter)
+                    if (userValue < 1 || userValue > busStopCounter)
                     {
                         Console.WriteLine($"Sorry, that number is not in range.");
                         continue;
@@ -121,7 +120,18 @@ namespace BusBank
         public static void DisplayJourney(string postcode, string busStopId)
         {
             var journey = APIInterface.JourneyPlanner(postcode, busStopId);
-            Console.WriteLine(journey);
+            foreach (var leg in journey.journeys[0].legs)
+            {
+                foreach (var instruction in leg.instruction)
+                {
+                    Console.WriteLine($"Summary: {instruction.summary}");
+
+                    foreach (var step in instruction.steps)
+                    {
+                        Console.WriteLine($"{step.descriptionHeading} {step.description}");
+                    }
+                }
+            }
         }
     }
 }
