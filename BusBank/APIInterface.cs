@@ -78,6 +78,7 @@ namespace BusBank
             if (tflResponses.StatusCode != HttpStatusCode.OK)
             {
                 Logger.Fatal($"Incorrect response from server 'https://api.tfl.gov.uk/StopPoint/stopID/Arrivals': expected '200', received {tflResponses.StatusCode}");
+                throw new Exception($"Received incorrect status code: {tflResponses.StatusCode}");
             }
 
             try
@@ -87,7 +88,7 @@ namespace BusBank
             catch (Exception e)
             {
                 Logger.Error(e, "Failed to deserialise next buses response from request.");
-                throw new Exception($"Received incorrect status code: {tflResponses.StatusCode}");
+                throw;
             }
         }
 
@@ -97,7 +98,22 @@ namespace BusBank
             //TODO add status code check
             var journeyPlannerRequest = new RestRequest($"/Journey/JourneyResults/{postcode}/to/{NaptanId}");
             var journeyPlannerResponses = tflclient.Get<JourneyPlannerResponse>(journeyPlannerRequest);
-            return journeyPlannerResponses.Data;
+
+            if (journeyPlannerResponses.StatusCode != HttpStatusCode.OK)
+            {
+                Logger.Fatal($"Incorrect response from server 'https://api.tfl.gov.uk/StopPoint//Journey/JourneyResults/from/to/to: expected '200', received {journeyPlannerResponses.StatusCode}");
+                throw new Exception($"Received incorrect status code: {journeyPlannerResponses.StatusCode}");
+            }
+
+            try
+            {
+                return journeyPlannerResponses.Data;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to deserialise next buses response from request.");
+                throw;
+            }
         }
     }
 }
