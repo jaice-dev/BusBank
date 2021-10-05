@@ -20,8 +20,7 @@ namespace BusBank
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, target));
             LogManager.Configuration = config;
             
-            //TODO check status codes and add logging/error handling
-            //TODO Don’t forget logging and error handling - Are you confident you’ve handled anything that can go wrong? - What happens if your user enters an invalid postcode? - What happens if there aren’t any bus stops nearby? - What happens if there aren’t any busses coming?
+            //TODO What happens if there aren’t any busses coming?
             //TODO The TFL API also has a 'Journey Planner'. Edit your program so that (when requested) it will also display directions on how to get to your nearest bus stops.
             
             var appRunning = true;
@@ -35,20 +34,44 @@ namespace BusBank
                     appRunning = false;
                 }
 
-                var longAndLat= APIInterface.GetLongAndLat(userPostcode);
+                float[] longAndLat;
+                
+                try
+                {
+                    longAndLat= APIInterface.GetLongAndLat(userPostcode);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Incorrect Postcode, please enter another.");
+                    continue;
+                }
+                
                 var longitude = longAndLat[0];
                 var latitude = longAndLat[1];
                 
                 Console.WriteLine($"\nYour location - Longitude: {longitude}, Latitude: {latitude}");
 
-                var nearestBusStops = APIInterface.FindNearestBusStops(longitude, latitude);
+                var nearestBusStops = APIInterface.FindNearestBusStops(longitude, latitude).Take(2).ToArray();
+
+                if (nearestBusStops.Length == 0)
+                {
+                    Console.WriteLine("There are no Bus Stops within a 200m radius. Please enter another postcode.");
+                    continue;
+                }
                 
-                foreach (var response in nearestBusStops.Take(2))
+                foreach (var response in nearestBusStops)
                 {
                     Console.WriteLine(
                         $"\nStopNaptanID: {response.naptanId}, Distance to stop: {response.distance}m\n");
-                    var nextBuses = APIInterface.FindNextBuses(response.naptanId);
-                    foreach (var bus in nextBuses.Take(5))
+                    var nextBuses = APIInterface.FindNextBuses(response.naptanId).Take(5).ToArray();
+
+                    if (nextBuses.Length == 0)
+                    {
+                        Console.WriteLine("There are no buses coming to this stop. Sorry!");
+                        continue;
+                    }
+                    
+                    foreach (var bus in nextBuses)
                     {
                         TimeSpan timeDelta = DateTime.UtcNow - bus.expectedArrival;
                         Console.WriteLine($"    StationName: {bus.stationName}, Direction: {bus.direction}, Towards: {bus.towards}, " +
