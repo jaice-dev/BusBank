@@ -13,7 +13,7 @@ namespace BusBank
         //Logger
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        static RestClient tflclient = new RestClient("https://api.tfl.gov.uk/StopPoint");
+        static RestClient tflclient = new RestClient("https://api.tfl.gov.uk");
 
         public static float[] GetLongAndLat(string postcode)
         {
@@ -48,7 +48,7 @@ namespace BusBank
         public static IOrderedEnumerable<StopPoints> FindNearestBusStops(float lon, float lat)
         {
             
-            var nearestBusStopRequest = new RestRequest().AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
+            var nearestBusStopRequest = new RestRequest("/StopPoint").AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
                 .AddQueryParameter("lat", $"{lat}").AddQueryParameter("lon", $"{lon}");
             var nearestBusStopResponses = tflclient.Get<NearestBusStopResponse>(nearestBusStopRequest);
             
@@ -72,7 +72,7 @@ namespace BusBank
 
         public static IEnumerable<TFLResponse> FindNextBuses(string stopID)
         {
-            var busStopRequest = new RestRequest($"/{stopID}/Arrivals");
+            var busStopRequest = new RestRequest($"/StopPoint/{stopID}/Arrivals");
             var tflResponses = tflclient.Get<List<TFLResponse>>(busStopRequest);
 
             if (tflResponses.StatusCode != HttpStatusCode.OK)
@@ -95,7 +95,6 @@ namespace BusBank
         public static JourneyPlannerResponse JourneyPlanner(string postcode, string NaptanId)
         {
             //TODO look at optional query parameters
-            //TODO add status code check
             var journeyPlannerRequest = new RestRequest($"/Journey/JourneyResults/{postcode}/to/{NaptanId}");
             var journeyPlannerResponses = tflclient.Get<JourneyPlannerResponse>(journeyPlannerRequest);
 

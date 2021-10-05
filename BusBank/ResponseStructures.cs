@@ -42,7 +42,7 @@ namespace BusBank
 
     public class JourneyPlannerResponse
     {
-        public List<Journey> journey { get; set; }
+        public List<Journey> journeys { get; set; }
     }
 
     public class Journey
@@ -65,8 +65,6 @@ namespace BusBank
     public class Step
     {
         public string description { get; set; }
-        public string turnDirection { get; set; }
-        public string streetname { get; set; }
-        public int distance { get; set; }
+        public string descriptionHeading { get; set; }
     }
 }

@@ -84,7 +84,7 @@ namespace BusBank
                 
                 while (true)
                 {
-                    Console.WriteLine($"Plan your journey to a bus stop? (Press enter to quit). Please enter a number between 1 and {busStopCounter}: ");
+                    Console.WriteLine($"\nPlan your journey to a bus stop? (Press enter to quit). Please enter a number between 1 and {busStopCounter}: ");
                     var userInput = Console.ReadLine();
                     if (userInput == null)
                     {
@@ -121,6 +121,7 @@ namespace BusBank
         public static void DisplayJourney(string postcode, string busStopId)
         {
             var journey = APIInterface.JourneyPlanner(postcode, busStopId);
+            Console.WriteLine(journey);
         }
     }
 }
