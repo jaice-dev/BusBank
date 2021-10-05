@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using RestSharp;
 
 namespace BusBank
@@ -28,9 +29,11 @@ namespace BusBank
             return nearestBusStopResponses.Data.stopPoints.OrderBy(item => item.distance);
         }
 
-        public static void FindNextBuses(string stopID)
+        public static IEnumerable<TFLResponse> FindNextBuses(string stopID)
         {
-            
+            var busStopRequest = new RestRequest($"/{stopID}/Arrivals");
+            var tflResponses = tflclient.Get<List<TFLResponse>>(busStopRequest);
+            return tflResponses.Data.OrderBy(item => item.timeToStation).Take(5);
         }
     }
 }
