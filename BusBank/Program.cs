@@ -20,7 +20,6 @@ namespace BusBank
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, target));
             LogManager.Configuration = config;
             
-            //TODO What happens if there aren’t any busses coming?
             //TODO The TFL API also has a 'Journey Planner'. Edit your program so that (when requested) it will also display directions on how to get to your nearest bus stops.
             
             var appRunning = true;
@@ -58,11 +57,14 @@ namespace BusBank
                     Console.WriteLine("There are no Bus Stops within a 200m radius. Please enter another postcode.");
                     continue;
                 }
+
+                var busStopCounter = 0;
                 
                 foreach (var response in nearestBusStops)
                 {
+                    busStopCounter++;
                     Console.WriteLine(
-                        $"\nStopNaptanID: {response.naptanId}, Distance to stop: {response.distance}m\n");
+                        $"\n{busStopCounter}) StopID: {response.naptanId}, Distance to stop: {response.distance}m\n");
                     var nextBuses = APIInterface.FindNextBuses(response.naptanId).Take(5).ToArray();
 
                     if (nextBuses.Length == 0)
@@ -79,7 +81,46 @@ namespace BusBank
                                      $"Expected Arrival: {timeDelta.Humanize()}");
                     }
                 }
+                
+                while (true)
+                {
+                    Console.WriteLine($"Plan your journey to a bus stop? (Press enter to quit). Please enter a number between 1 and {busStopCounter}: ");
+                    var userInput = Console.ReadLine();
+                    if (userInput == null)
+                    {
+                        break;
+                    }
+
+                    int userValue;
+                    
+                    try
+                    {
+                        userValue = int.Parse(userInput);
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Sorry, not a valid integer. Try again.");
+                        continue;
+                    }
+
+                    if (1 < userValue || userValue > busStopCounter)
+                    {
+                        Console.WriteLine($"Sorry, that number is not in range.");
+                        continue;
+                    }
+
+                    var userNaptanId = nearestBusStops[userValue - 1].naptanId;
+                    
+                    DisplayJourney(userPostcode, userNaptanId);
+
+
+                }
             }
+        }
+
+        public static void DisplayJourney(string postcode, string busStopId)
+        {
+            var journey = APIInterface.JourneyPlanner(postcode, busStopId);
         }
     }
 }

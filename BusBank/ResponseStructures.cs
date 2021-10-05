@@ -39,4 +39,34 @@ namespace BusBank
         public string naptanId { get; set; }
         public int distance { get; set; }
     }
+
+    public class JourneyPlannerResponse
+    {
+        public List<Journey> journey { get; set; }
+    }
+
+    public class Journey
+    {
+        public DateTime arrivalDateTime { get; set; }
+        public List<Leg> legs { get; set; }
+    }
+
+    public class Leg
+    {
+        public List<Instruction> instruction { get; set; }
+    }
+
+    public class Instruction
+    {
+        public string summary { get; set; }
+        public List<Step> steps { get; set; }
+    }
+
+    public class Step
+    {
+        public string description { get; set; }
+        public string turnDirection { get; set; }
+        public string streetname { get; set; }
+        public int distance { get; set; }
+    }
 }

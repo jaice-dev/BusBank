@@ -89,7 +89,15 @@ namespace BusBank
                 Logger.Error(e, "Failed to deserialise next buses response from request.");
                 throw new Exception($"Received incorrect status code: {tflResponses.StatusCode}");
             }
-            
+        }
+
+        public static JourneyPlannerResponse JourneyPlanner(string postcode, string NaptanId)
+        {
+            //TODO look at optional query parameters
+            //TODO add status code check
+            var journeyPlannerRequest = new RestRequest($"/Journey/JourneyResults/{postcode}/to/{NaptanId}");
+            var journeyPlannerResponses = tflclient.Get<JourneyPlannerResponse>(journeyPlannerRequest);
+            return journeyPlannerResponses.Data;
         }
     }
 }
