@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Humanizer;
 using RestSharp;
 
 namespace BusBank
@@ -18,28 +19,34 @@ namespace BusBank
             var appRunning = true;
             while (appRunning)
             {
-                Console.WriteLine("Welcome to BusBank. Please enter a postcode: ");
+                Console.WriteLine("\nWelcome to BusBank. Please enter a postcode: ");
                 string userPostcode = Console.ReadLine().Replace(" ", "").ToLower();
+                
+                if (userPostcode == "quit")
+                {
+                    appRunning = false;
+                }
 
                 var longAndLat= APIInterface.GetLongAndLat(userPostcode);
                 var longitude = longAndLat[0];
                 var latitude = longAndLat[1];
                 
-                Console.WriteLine($"Your location - Longitude: {longitude}, Latitude: {latitude}");
+                Console.WriteLine($"\nYour location - Longitude: {longitude}, Latitude: {latitude}");
 
                 var nearestBusStops = APIInterface.FindNearestBusStops(longitude, latitude);
                 
                 foreach (var response in nearestBusStops.Take(2))
                 {
                     Console.WriteLine(
-                        $"StopNaptanID: {response.naptanId}, Distance to stop: {response.distance}m");
+                        $"\nStopNaptanID: {response.naptanId}, Distance to stop: {response.distance}m\n");
                     //TODO modify your program so that the user can supply a postcode and see the next buses at the two nearest bus stops.
                     var nextBuses = APIInterface.FindNextBuses(response.naptanId);
                     foreach (var bus in nextBuses.Take(5))
                     {
-                        Console.WriteLine($"VehicleId: {bus.vehicleId}, StationName: {bus.stationName}, Direction: {bus.direction}, Towards: {bus.towards}, " +
-                                     $"DestinationName: {bus.destinationName}, LineName: {bus.lineName}, TimeToStation: {bus.timeToStation}, " +
-                                     $"Expected Arrival: {bus.expectedArrival}");
+                        TimeSpan timeDelta = DateTime.UtcNow - bus.expectedArrival;
+                        Console.WriteLine($"    StationName: {bus.stationName}, Direction: {bus.direction}, Towards: {bus.towards}, " +
+                                     $"DestinationName: {bus.destinationName}, LineName: {bus.lineName}, " +
+                                     $"Expected Arrival: {timeDelta.Humanize()}");
                         //TODO print a list of the next five buses at that stop code, with their routes, destinations, and the time until they arrive in minutes.
                         //TODO Try to ensure you're using a sensible class structure with well-named methods. Remember to commit and push your changes as you go.
                     }
