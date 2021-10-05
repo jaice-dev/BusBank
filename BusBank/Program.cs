@@ -20,8 +20,6 @@ namespace BusBank
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, target));
             LogManager.Configuration = config;
             
-            //TODO The TFL API also has a 'Journey Planner'. Edit your program so that (when requested) it will also display directions on how to get to your nearest bus stops.
-            
             while (true)
             {
                 Console.WriteLine("\nWelcome to BusBank. Please enter a postcode: ");
@@ -39,7 +37,7 @@ namespace BusBank
                     continue;
                 }
 
-                var result = GetBusses(location.Item1, location.Item2);
+                var result = GetBusses(location.longitude, location.latitude);
                 if (result is null)
                 {
                     continue;
@@ -49,9 +47,10 @@ namespace BusBank
             }
         }
 
-        public static Tuple<float, float> GetLongAndLat(string userPostcode)
+        public static Result GetLongAndLat(string userPostcode)
         {
-            float[] longAndLat;
+            Result longAndLat;
+            
             try
             {
                 longAndLat = APIInterface.GetLongAndLat(userPostcode);
@@ -61,7 +60,7 @@ namespace BusBank
                 return null;
             }
 
-            return Tuple.Create(longAndLat[0], longAndLat[1]);
+            return longAndLat;
         }
         
         public static Tuple<int, StopPoints[]> GetBusses(float longitude, float latitude)

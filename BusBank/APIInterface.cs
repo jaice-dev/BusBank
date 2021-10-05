@@ -15,34 +15,34 @@ namespace BusBank
 
         static RestClient tflclient = new RestClient("https://api.tfl.gov.uk");
 
-        public static float[] GetLongAndLat(string postcode)
+        private static TData GetResponse<TData>(RestClient restClient, RestRequest restRequest)
         {
-            float longitude;
-            float latitude;
+            var response = restClient.Get<TData>(restRequest);
             
-            var postcodeclient = new RestClient("http://api.postcodes.io/postcodes");
-            var postcoderequest = new RestRequest($"/{postcode}");
-            var postcodeResponse = postcodeclient.Get<PostcodeResponse>(postcoderequest);
-
-            if (postcodeResponse.StatusCode != HttpStatusCode.OK)
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                Logger.Fatal($"Incorrect response from server 'http://api.postcodes.io': expected '200', received {postcodeResponse.StatusCode}");
-                throw new Exception($"Received incorrect status code: {postcodeResponse.StatusCode}");
+                Logger.Error($"Incorrect response from server 'http://api.postcodes.io': expected '200', received {response.StatusCode}");
+                throw new Exception($"Received incorrect status code: {response.StatusCode}");
             }
 
             try
             {
-                longitude = postcodeResponse.Data.result.longitude;
-                latitude = postcodeResponse.Data.result.latitude;
+                return response.Data;
             }
             catch (Exception e)
             {
                 Logger.Error(e, "Failed to deserialise postcode response from request.");
                 throw;
             }
+        }
+        
+        public static Result GetLongAndLat(string postcode)
+        {
+            var postcodeClient = new RestClient("http://api.postcodes.io/postcodes");
+            var postcodeRequest = new RestRequest($"/{postcode}");
 
-            float[] locationArray = new[] {longitude, latitude};
-            return locationArray;
+            var postcodeResponse = GetResponse<PostcodeResponse>(postcodeClient, postcodeRequest);
+            return postcodeResponse.result;
         }
 
         public static IOrderedEnumerable<StopPoints> FindNearestBusStops(float lon, float lat)
@@ -94,7 +94,6 @@ namespace BusBank
 
         public static JourneyPlannerResponse JourneyPlanner(string postcode, string NaptanId)
         {
-            //TODO look at optional query parameters
             var journeyPlannerRequest = new RestRequest($"/Journey/JourneyResults/{postcode}/to/{NaptanId}");
             var journeyPlannerResponses = tflclient.Get<JourneyPlannerResponse>(journeyPlannerRequest);
 

@@ -23,7 +23,7 @@ namespace BusBank
         public Result result { get; set; }
     }
         
-    class Result
+    public class Result
     {
         public float longitude { get; set; }
         public float latitude { get; set; }
