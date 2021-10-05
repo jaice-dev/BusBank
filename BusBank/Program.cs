@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Humanizer;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using RestSharp;
 
 namespace BusBank
@@ -10,12 +13,17 @@ namespace BusBank
     {
         static void Main(string[] args)
         {
-            // var softwireBusStop = "490008660N";
-            // var postcode = "nw51tl";
+            // Logging configuration
+            var config = new LoggingConfiguration();
+            var target = new FileTarget { FileName = @"C:\Work\Logs\SupportBank.log", Layout = @"${longdate} ${level} - ${logger}: ${message}" };
+            config.AddTarget("File Logger", target);
+            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, target));
+            LogManager.Configuration = config;
             
             //TODO check status codes and add logging/error handling
             //TODO Don’t forget logging and error handling - Are you confident you’ve handled anything that can go wrong? - What happens if your user enters an invalid postcode? - What happens if there aren’t any bus stops nearby? - What happens if there aren’t any busses coming?
             //TODO The TFL API also has a 'Journey Planner'. Edit your program so that (when requested) it will also display directions on how to get to your nearest bus stops.
+            
             var appRunning = true;
             while (appRunning)
             {
@@ -39,7 +47,6 @@ namespace BusBank
                 {
                     Console.WriteLine(
                         $"\nStopNaptanID: {response.naptanId}, Distance to stop: {response.distance}m\n");
-                    //TODO modify your program so that the user can supply a postcode and see the next buses at the two nearest bus stops.
                     var nextBuses = APIInterface.FindNextBuses(response.naptanId);
                     foreach (var bus in nextBuses.Take(5))
                     {
@@ -47,8 +54,6 @@ namespace BusBank
                         Console.WriteLine($"    StationName: {bus.stationName}, Direction: {bus.direction}, Towards: {bus.towards}, " +
                                      $"DestinationName: {bus.destinationName}, LineName: {bus.lineName}, " +
                                      $"Expected Arrival: {timeDelta.Humanize()}");
-                        //TODO print a list of the next five buses at that stop code, with their routes, destinations, and the time until they arrive in minutes.
-                        //TODO Try to ensure you're using a sensible class structure with well-named methods. Remember to commit and push your changes as you go.
                     }
                 }
             }
