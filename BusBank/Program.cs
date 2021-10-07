@@ -1,34 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Humanizer;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
-using RestSharp;
 
 namespace BusBank
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // Logging configuration
             var config = new LoggingConfiguration();
-            var target = new FileTarget { FileName = @"C:\Work\Logs\BusBank.log", Layout = @"${longdate} ${level} - ${logger}: ${message}" };
+            var target = new FileTarget
+                {FileName = @"C:\Work\Logs\BusBank.log", Layout = @"${longdate} ${level} - ${logger}: ${message}"};
             config.AddTarget("File Logger", target);
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, target));
             LogManager.Configuration = config;
-            
+
             while (true)
             {
                 Console.WriteLine("\nWelcome to BusBank. Please enter a postcode: ");
-                string userPostcode = Console.ReadLine()?.Replace(" ", "").ToLower();
-                
-                if (userPostcode == "quit")
-                {
-                    break;
-                }
+                var userPostcode = Console.ReadLine()?.Replace(" ", "").ToLower();
+
+                if (userPostcode == "quit") break;
 
                 var location = GetLongAndLat(userPostcode);
                 if (location is null)
@@ -38,10 +34,7 @@ namespace BusBank
                 }
 
                 var result = GetBusses(location);
-                if (result is null)
-                {
-                    continue;
-                }
+                if (result is null) continue;
 
                 PromptJourneryPlanning(result.Item1, result.Item2, userPostcode);
             }
@@ -50,7 +43,7 @@ namespace BusBank
         public static PostCodeResult GetLongAndLat(string userPostcode)
         {
             PostCodeResult longAndLat;
-            
+
             try
             {
                 longAndLat = APIClient.GetLongAndLat(userPostcode);
@@ -62,7 +55,7 @@ namespace BusBank
 
             return longAndLat;
         }
-        
+
         public static Tuple<int, StopPoints[]> GetBusses(PostCodeResult longandlat)
         {
             Console.WriteLine($"\nYour location - Longitude: {longandlat.longitude}, Latitude: {longandlat.latitude}");
@@ -92,7 +85,7 @@ namespace BusBank
 
                 foreach (var bus in nextBuses)
                 {
-                    TimeSpan timeDelta = DateTime.UtcNow - bus.expectedArrival;
+                    var timeDelta = DateTime.UtcNow - bus.expectedArrival;
                     Console.WriteLine(
                         $"    StationName: {bus.stationName}, Direction: {bus.direction}, Towards: {bus.towards}, " +
                         $"DestinationName: {bus.destinationName}, LineName: {bus.lineName}, " +
@@ -107,15 +100,13 @@ namespace BusBank
         {
             while (true)
             {
-                Console.WriteLine($"\nPlan your journey to a bus stop? (Press enter to quit). Please enter a number between 1 and {busStopCounter}: ");
+                Console.WriteLine(
+                    $"\nPlan your journey to a bus stop? (Press enter to quit). Please enter a number between 1 and {busStopCounter}: ");
                 var userInput = Console.ReadLine();
-                if (string.IsNullOrEmpty(userInput))
-                {
-                    break;
-                }
+                if (string.IsNullOrEmpty(userInput)) break;
 
                 int userValue;
-                
+
                 try
                 {
                     userValue = int.Parse(userInput);
@@ -128,12 +119,12 @@ namespace BusBank
 
                 if (userValue < 1 || userValue > busStopCounter)
                 {
-                    Console.WriteLine($"Sorry, that number is not in range.");
+                    Console.WriteLine("Sorry, that number is not in range.");
                     continue;
                 }
 
                 var userNaptanId = nearestBusStops[userValue - 1].naptanId;
-                
+
                 DisplayJourney(userPostcode, userNaptanId);
             }
         }
@@ -142,16 +133,12 @@ namespace BusBank
         {
             var journey = APIClient.JourneyPlanner(postcode, busStopId);
             foreach (var leg in journey.journeys[0].legs)
+            foreach (var instruction in leg.instruction)
             {
-                foreach (var instruction in leg.instruction)
-                {
-                    Console.WriteLine($"Summary: {instruction.summary}");
+                Console.WriteLine($"Summary: {instruction.summary}");
 
-                    foreach (var step in instruction.steps)
-                    {
-                        Console.WriteLine($"{step.descriptionHeading} {step.description}");
-                    }
-                }
+                foreach (var step in instruction.steps)
+                    Console.WriteLine($"{step.descriptionHeading} {step.description}");
             }
         }
     }

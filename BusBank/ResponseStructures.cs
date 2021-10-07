@@ -12,17 +12,16 @@ namespace BusBank
         public string towards { get; set; }
         public string destinationName { get; set; }
         public string lineName { get; set; }
-        
+
         public int timeToStation { get; set; }
         public DateTime expectedArrival { get; set; }
-        
     }
-        
-    class PostCodeResponse
+
+    internal class PostCodeResponse
     {
         public PostCodeResult result { get; set; }
     }
-        
+
     public class PostCodeResult
     {
         public float longitude { get; set; }
@@ -33,7 +32,7 @@ namespace BusBank
     {
         public List<StopPoints> stopPoints { get; set; }
     }
-        
+
     public class StopPoints
     {
         public string naptanId { get; set; }

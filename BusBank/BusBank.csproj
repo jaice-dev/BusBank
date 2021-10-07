@@ -6,9 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Humanizer" Version="2.11.10" />
-      <PackageReference Include="NLog" Version="5.0.0-preview.2" />
-      <PackageReference Include="RestSharp" Version="106.12.0" />
+        <PackageReference Include="Humanizer" Version="2.11.10"/>
+        <PackageReference Include="NLog" Version="5.0.0-preview.2"/>
+        <PackageReference Include="RestSharp" Version="106.12.0"/>
     </ItemGroup>
 
 </Project>
