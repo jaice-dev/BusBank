@@ -47,9 +47,9 @@ namespace BusBank
             }
         }
 
-        public static PostcodeResult GetLongAndLat(string userPostcode)
+        public static PostCodeResult GetLongAndLat(string userPostcode)
         {
-            PostcodeResult longAndLat;
+            PostCodeResult longAndLat;
             
             try
             {
@@ -63,7 +63,7 @@ namespace BusBank
             return longAndLat;
         }
         
-        public static Tuple<int, StopPoints[]> GetBusses(PostcodeResult longandlat)
+        public static Tuple<int, StopPoints[]> GetBusses(PostCodeResult longandlat)
         {
             Console.WriteLine($"\nYour location - Longitude: {longandlat.longitude}, Latitude: {longandlat.latitude}");
 

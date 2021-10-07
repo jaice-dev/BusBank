@@ -18,12 +18,12 @@ namespace BusBank
         
     }
         
-    class PostcodeResponse
+    class PostCodeResponse
     {
-        public PostcodeResult result { get; set; }
+        public PostCodeResult result { get; set; }
     }
         
-    public class PostcodeResult
+    public class PostCodeResult
     {
         public float longitude { get; set; }
         public float latitude { get; set; }

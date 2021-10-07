@@ -36,19 +36,19 @@ namespace BusBank
             }
         }
         
-        public static PostcodeResult GetLongAndLat(string postcode)
+        public static PostCodeResult GetLongAndLat(string postcode)
         {
             var postcodeClient = new RestClient("http://api.postcodes.io/postcodes");
             var postcodeRequest = new RestRequest($"/{postcode}");
 
-            var postcodeResponse = GetResponse<PostcodeResponse>(postcodeClient, postcodeRequest);
+            var postcodeResponse = GetResponse<PostCodeResponse>(postcodeClient, postcodeRequest);
             return postcodeResponse.result;
         }
 
-        public static List<StopPoints> Test(PostcodeResult postcode)
+        public static List<StopPoints> Test(PostCodeResult postCode)
         {
             var nearestBusStopRequest = new RestRequest("/StopPoint").AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
-                .AddQueryParameter("lat", $"{postcode.latitude}").AddQueryParameter("lon", $"{postcode.longitude}");
+                .AddQueryParameter("lat", $"{postCode.latitude}").AddQueryParameter("lon", $"{postCode.longitude}");
 
             var nearestBusStopResponses = GetResponse<NearestBusStopResponse>(tflclient, nearestBusStopRequest);
             return nearestBusStopResponses.stopPoints;
