@@ -60,7 +60,7 @@ namespace BusBank
         {
             Console.WriteLine($"\nYour location - Longitude: {longandlat.longitude}, Latitude: {longandlat.latitude}");
 
-            var nearestBusStops = APIClient.Test(longandlat).Take(2).ToArray();
+            var nearestBusStops = APIClient.FindNearestBusStops(longandlat).Take(2).ToArray();
 
             if (nearestBusStops.Length == 0)
             {

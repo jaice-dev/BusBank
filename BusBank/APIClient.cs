@@ -45,27 +45,26 @@ namespace BusBank
             return postcodeResponse.result;
         }
 
-        public static List<StopPoints> Test(PostCodeResult postCode)
+        public static IOrderedEnumerable<StopPoints> FindNearestBusStops(PostcodeResult postcode)
         {
             var nearestBusStopRequest = new RestRequest("/StopPoint")
                 .AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
                 .AddQueryParameter("lat", $"{postCode.latitude}").AddQueryParameter("lon", $"{postCode.longitude}");
 
             var nearestBusStopResponses = GetResponse<NearestBusStopResponse>(tflclient, nearestBusStopRequest);
-            return nearestBusStopResponses.stopPoints;
+            return nearestBusStopResponses.stopPoints.OrderBy(item => item.distance);
         }
 
         public static IOrderedEnumerable<StopPoints> FindNearestBusStops(float lon, float lat)
         {
-            var nearestBusStopRequest = new RestRequest("/StopPoint")
-                .AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
+            
+            var nearestBusStopRequest = new RestRequest("/StopPoint").AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
                 .AddQueryParameter("lat", $"{lat}").AddQueryParameter("lon", $"{lon}");
             var nearestBusStopResponses = tflclient.Get<NearestBusStopResponse>(nearestBusStopRequest);
-
+            
             if (nearestBusStopResponses.StatusCode != HttpStatusCode.OK)
             {
-                Logger.Fatal(
-                    $"Incorrect response from server 'https://api.tfl.gov.uk/StopPoint': expected '200', received {nearestBusStopResponses.StatusCode}");
+                Logger.Fatal($"Incorrect response from server 'https://api.tfl.gov.uk/StopPoint': expected '200', received {nearestBusStopResponses.StatusCode}");
                 throw new Exception($"Received incorrect status code: {nearestBusStopResponses.StatusCode}");
             }
 
@@ -78,6 +77,7 @@ namespace BusBank
                 Logger.Error(e, "Failed to deserialise Nearest Bus Stop response from request.");
                 throw;
             }
+            
         }
 
         public static IEnumerable<TFLResponse> FindNextBuses(string stopID)
