@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Humanizer;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebApplication.Models;
@@ -33,10 +33,13 @@ namespace WebApplication.Controllers
             {
                 _logger.LogInformation("test is valid");
                 ViewBag.ValidSearch = true;
-                return View("Index");
+                return View("Results");
             }
+            
+            _logger.LogInformation(model.Target);
 
-            ViewBag.ErrorMessage = "Invalid thing given";
+            ViewBag.Target = model.Target ?? "nav";
+            ViewBag.ErrorMessage = $"Value '{model.PostCode}' is not a valid postcode.";
             ViewBag.ValidSearch = false;
             return View("Index");
         }

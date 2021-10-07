@@ -6,10 +6,16 @@
     <title>@ViewData["Title"] - WebApplication</title>
     <link rel="stylesheet" href="~/css/site.css"/>
     <link href="https://unpkg.com/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .bg-white-gradient {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 10%, rgba(255, 255, 255, 255) 50%, rgba(255, 255, 255, 0) 90%);
+        }
+    </style>
 </head>
 @{
     bool validSearch = ViewBag.ValidSearch ?? true;
     string errorMsg = ViewBag.ErrorMessage ?? "";
+    string target = ViewBag.Target ?? "main";
 }
 <body class="bg-gray-800 min-w-screen min-h-screen">
 <nav class="flex justify-around h-16 py-2 px-8">
@@ -20,15 +26,15 @@
             <form method="POST" action="/Home/search" class="flex items-center px-4 w-full">  
                 <input
                     name="PostCode"
-                    id="PostCode" 
                     type="text"
                     required
                     placeholder="Enter postcode to search for nearest stops..."
                     class="w-full bg-white text-sm placeholder-gray-600 focus:outline-none px-2 w-full"/>
+                <input type="text"  name="Target" value="nav" class="hidden">
                 <input type="submit" value="Search 🚀" class="border-l-2 border-gray-700 bg-transparent pl-2 cursor-pointer">
             </form>
         </div>
-        @if (!validSearch)
+        @if (!validSearch & target == "nav")
             {
                 <div id="errorBox" class="flex justify-center absolute top-0 w-full mb-8 transform translate-y-12">
                     <div class="flex items-center justify-between bg-red-400 border-2 border-red-500 rounded-lg h-10 w-1/2 px-8">
