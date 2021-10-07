@@ -42,10 +42,10 @@ namespace BusBank
             var postcodeRequest = new RestRequest($"/{postcode}");
 
             var postcodeResponse = GetResponse<PostcodeResponse>(postcodeClient, postcodeRequest);
-            return postcodeResponse.PostcodeResult;
+            return postcodeResponse.result;
         }
 
-        public static List<NearestBusStopResponse> Test(PostcodeResult postcode)
+        public static List<StopPoints> Test(PostcodeResult postcode)
         {
             var nearestBusStopRequest = new RestRequest("/StopPoint").AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
                 .AddQueryParameter("lat", $"{postcode.latitude}").AddQueryParameter("lon", $"{postcode.longitude}");

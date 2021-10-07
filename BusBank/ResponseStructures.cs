@@ -20,7 +20,7 @@ namespace BusBank
         
     class PostcodeResponse
     {
-        public PostcodeResult PostcodeResult { get; set; }
+        public PostcodeResult result { get; set; }
     }
         
     public class PostcodeResult
@@ -31,7 +31,7 @@ namespace BusBank
 
     public class NearestBusStopResponse
     {
-        public List<NearestBusStopResponse> stopPoints { get; set; }
+        public List<StopPoints> stopPoints { get; set; }
     }
         
     public class StopPoints
