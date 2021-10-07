@@ -45,7 +45,7 @@ namespace BusBank
             return postcodeResponse.result;
         }
 
-        public static IOrderedEnumerable<StopPoints> FindNearestBusStops(PostcodeResult postcode)
+        public static IOrderedEnumerable<StopPoints> FindNearestBusStops(PostCodeResult postCode)
         {
             var nearestBusStopRequest = new RestRequest("/StopPoint")
                 .AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
