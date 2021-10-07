@@ -49,59 +49,21 @@ namespace BusBank
         {
             var nearestBusStopRequest = new RestRequest("/StopPoint")
                 .AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
-                .AddQueryParameter("lat", $"{postCode.latitude}").AddQueryParameter("lon", $"{postCode.longitude}");
+                .AddQueryParameter("lat", $"{postcode.latitude}").AddQueryParameter("lon", $"{postcode.longitude}");
 
             var nearestBusStopResponses = GetResponse<NearestBusStopResponse>(tflclient, nearestBusStopRequest);
             return nearestBusStopResponses.stopPoints.OrderBy(item => item.distance);
         }
 
-        public static IOrderedEnumerable<StopPoints> FindNearestBusStops(float lon, float lat)
-        {
-            
-            var nearestBusStopRequest = new RestRequest("/StopPoint").AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
-                .AddQueryParameter("lat", $"{lat}").AddQueryParameter("lon", $"{lon}");
-            var nearestBusStopResponses = tflclient.Get<NearestBusStopResponse>(nearestBusStopRequest);
-            
-            if (nearestBusStopResponses.StatusCode != HttpStatusCode.OK)
-            {
-                Logger.Fatal($"Incorrect response from server 'https://api.tfl.gov.uk/StopPoint': expected '200', received {nearestBusStopResponses.StatusCode}");
-                throw new Exception($"Received incorrect status code: {nearestBusStopResponses.StatusCode}");
-            }
-
-            try
-            {
-                return nearestBusStopResponses.Data.stopPoints.OrderBy(item => item.distance);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Failed to deserialise Nearest Bus Stop response from request.");
-                throw;
-            }
-            
-        }
-
-        public static IEnumerable<TFLResponse> FindNextBuses(string stopID)
+        public static IEnumerable<TFLResponse> GetNextBuses(string stopID)
         {
             var busStopRequest = new RestRequest($"/StopPoint/{stopID}/Arrivals");
-            var tflResponses = tflclient.Get<List<TFLResponse>>(busStopRequest);
+            var tflResponses = GetResponse<List<TFLResponse>>(tflclient, busStopRequest);
+           
+            return tflResponses.OrderBy(item => item.timeToStation).Take(5);
 
-            if (tflResponses.StatusCode != HttpStatusCode.OK)
-            {
-                Logger.Fatal(
-                    $"Incorrect response from server 'https://api.tfl.gov.uk/StopPoint/stopID/Arrivals': expected '200', received {tflResponses.StatusCode}");
-                throw new Exception($"Received incorrect status code: {tflResponses.StatusCode}");
-            }
-
-            try
-            {
-                return tflResponses.Data.OrderBy(item => item.timeToStation).Take(5);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Failed to deserialise next buses response from request.");
-                throw;
-            }
         }
+        
 
         public static JourneyPlannerResponse JourneyPlanner(string postcode, string NaptanId)
         {

@@ -75,7 +75,7 @@ namespace BusBank
                 busStopCounter++;
                 Console.WriteLine(
                     $"\n{busStopCounter}) StopID: {response.naptanId}, Distance to stop: {response.distance}m\n");
-                var nextBuses = APIClient.FindNextBuses(response.naptanId).Take(5).ToArray();
+                var nextBuses = APIClient.GetNextBuses(response.naptanId).Take(5).ToArray();
 
                 if (nextBuses.Length == 0)
                 {
