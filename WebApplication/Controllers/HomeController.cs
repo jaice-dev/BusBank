@@ -33,11 +33,12 @@ namespace WebApplication.Controllers
             {
                 _logger.LogInformation("test is valid");
                 ViewBag.ValidSearch = true;
+                return View("Index");
             }
 
             ViewBag.ErrorMessage = "Invalid thing given";
             ViewBag.ValidSearch = false;
-            return RedirectToAction("Index");
+            return View("Index");
         }
     }
 }
