@@ -37,7 +37,7 @@ namespace BusBank
                     continue;
                 }
 
-                var result = GetBusses(location.longitude, location.latitude);
+                var result = GetBusses(location);
                 if (result is null)
                 {
                     continue;
@@ -47,13 +47,13 @@ namespace BusBank
             }
         }
 
-        public static Result GetLongAndLat(string userPostcode)
+        public static PostcodeResult GetLongAndLat(string userPostcode)
         {
-            Result longAndLat;
+            PostcodeResult longAndLat;
             
             try
             {
-                longAndLat = APIInterface.GetLongAndLat(userPostcode);
+                longAndLat = APIClient.GetLongAndLat(userPostcode);
             }
             catch (Exception e)
             {
@@ -63,11 +63,11 @@ namespace BusBank
             return longAndLat;
         }
         
-        public static Tuple<int, StopPoints[]> GetBusses(float longitude, float latitude)
+        public static Tuple<int, StopPoints[]> GetBusses(PostcodeResult longandlat)
         {
-            Console.WriteLine($"\nYour location - Longitude: {longitude}, Latitude: {latitude}");
+            Console.WriteLine($"\nYour location - Longitude: {longandlat.longitude}, Latitude: {longandlat.latitude}");
 
-            var nearestBusStops = APIInterface.FindNearestBusStops(longitude, latitude).Take(2).ToArray();
+            var nearestBusStops = APIClient.Test(longandlat).Take(2).ToArray();
 
             if (nearestBusStops.Length == 0)
             {
@@ -82,7 +82,7 @@ namespace BusBank
                 busStopCounter++;
                 Console.WriteLine(
                     $"\n{busStopCounter}) StopID: {response.naptanId}, Distance to stop: {response.distance}m\n");
-                var nextBuses = APIInterface.FindNextBuses(response.naptanId).Take(5).ToArray();
+                var nextBuses = APIClient.FindNextBuses(response.naptanId).Take(5).ToArray();
 
                 if (nextBuses.Length == 0)
                 {
@@ -140,7 +140,7 @@ namespace BusBank
 
         public static void DisplayJourney(string postcode, string busStopId)
         {
-            var journey = APIInterface.JourneyPlanner(postcode, busStopId);
+            var journey = APIClient.JourneyPlanner(postcode, busStopId);
             foreach (var leg in journey.journeys[0].legs)
             {
                 foreach (var instruction in leg.instruction)

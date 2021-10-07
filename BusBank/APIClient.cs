@@ -8,14 +8,14 @@ using RestSharp;
 
 namespace BusBank
 {
-    public static class APIInterface
+    public static class APIClient
     {
         //Logger
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         static RestClient tflclient = new RestClient("https://api.tfl.gov.uk");
 
-        private static TData GetResponse<TData>(RestClient restClient, RestRequest restRequest)
+        private static TData GetResponse<TData>(RestClient restClient, IRestRequest restRequest)
         {
             var response = restClient.Get<TData>(restRequest);
             
@@ -36,13 +36,23 @@ namespace BusBank
             }
         }
         
-        public static Result GetLongAndLat(string postcode)
+        public static PostcodeResult GetLongAndLat(string postcode)
         {
             var postcodeClient = new RestClient("http://api.postcodes.io/postcodes");
             var postcodeRequest = new RestRequest($"/{postcode}");
 
             var postcodeResponse = GetResponse<PostcodeResponse>(postcodeClient, postcodeRequest);
-            return postcodeResponse.result;
+            return postcodeResponse.PostcodeResult;
+        }
+
+        public static List<NearestBusStopResponse> Test(PostcodeResult postcode)
+        {
+            var nearestBusStopRequest = new RestRequest("/StopPoint").AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
+                .AddQueryParameter("lat", $"{postcode.latitude}").AddQueryParameter("lon", $"{postcode.longitude}");
+
+            var nearestBusStopResponses = GetResponse<NearestBusStopResponse>(tflclient, nearestBusStopRequest);
+            return nearestBusStopResponses.stopPoints;
+
         }
 
         public static IOrderedEnumerable<StopPoints> FindNearestBusStops(float lon, float lat)

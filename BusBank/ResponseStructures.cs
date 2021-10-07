@@ -20,18 +20,18 @@ namespace BusBank
         
     class PostcodeResponse
     {
-        public Result result { get; set; }
+        public PostcodeResult PostcodeResult { get; set; }
     }
         
-    public class Result
+    public class PostcodeResult
     {
         public float longitude { get; set; }
         public float latitude { get; set; }
     }
-        
-    class NearestBusStopResponse
+
+    public class NearestBusStopResponse
     {
-        public List<StopPoints> stopPoints { get; set; }
+        public List<NearestBusStopResponse> stopPoints { get; set; }
     }
         
     public class StopPoints
