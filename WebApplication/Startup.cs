@@ -46,7 +46,8 @@ namespace WebApplication
             {
                 endpoints.MapControllerRoute(
                     "default",
-                    "{controller=Home}/{action=Index}/{id?}");
+                    "{controller=Home}/{action=Index}");
+                    // /Home/test -> Test.cshtml
             });
         }
     }
