@@ -49,7 +49,7 @@ namespace BusBank
         {
             var nearestBusStopRequest = new RestRequest("/StopPoint")
                 .AddQueryParameter("stopTypes", "NaptanPublicBusCoachTram")
-                .AddQueryParameter("lat", $"{postcode.latitude}").AddQueryParameter("lon", $"{postcode.longitude}");
+                .AddQueryParameter("lat", $"{postCode.latitude}").AddQueryParameter("lon", $"{postCode.longitude}");
 
             var nearestBusStopResponses = GetResponse<NearestBusStopResponse>(tflclient, nearestBusStopRequest);
             return nearestBusStopResponses.stopPoints.OrderBy(item => item.distance);
